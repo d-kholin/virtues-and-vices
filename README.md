@@ -64,3 +64,35 @@ The browser check uses installed Microsoft Edge via Playwright, starts an isolat
 - `docs/PRODUCT.md`: agreed product decisions.
 
 OIDC reference: [openid-client authorization-code documentation](https://github.com/panva/openid-client/blob/main/docs/functions/authorizationCodeGrant.md).
+
+## Docker and GHCR
+
+The Container workflow tests the app and its browser flows before building an image. Pushes to any branch publish to `ghcr.io/d-kholin/virtues-and-vices`; pull requests build and test without publishing. GitHub's built-in `GITHUB_TOKEN` supplies registry authentication with `packages: write`; no registry password needs to be added to repository secrets. Actions are pinned to commit SHAs.
+
+| Source | Example image tags |
+| --- | --- |
+| `feature/calendar-controls` | `feature-calendar-controls`, `sha-<12-character-commit>` |
+| `main`, workflow run 23 | `1.23`, `1`, `sha-<12-character-commit>` |
+
+Branch tags are lowercase, with unsupported characters such as `/` replaced by `-`. Avoid names that normalize to the same tag. Release and SHA tag names are reserved; feature branches cannot overwrite them. The numbered main tag is `1.<workflow run number>` (not the version from `package.json`), so numbering can have gaps. Rerunning a workflow reuses its numbered tag. `1` moves to the most recently published main build. There is no `latest` tag. Publishing currently targets Linux amd64 and does not deploy to a running server.
+
+To build locally:
+
+```powershell
+docker build -t virtues-and-vices:local .
+```
+
+To run a published image, put real Pocket ID and session settings in your untracked `.env`, then:
+
+```powershell
+docker compose pull
+docker compose up -d
+```
+
+Compose uses `:1` by default. Set `VV_IMAGE=ghcr.io/d-kholin/virtues-and-vices:feature-calendar-controls` to try a feature image, or use a numbered `1.x` tag to pin a main build. The named `habit-data` volume persists SQLite. Use a separate Compose project/volume for feature testing (`docker compose -p vv-feature ...`) so test and production data stay separate. Bind-mounted data directories must be writable by container user UID 1000.
+
+Compose deliberately sets production mode and disables demo authentication bypass, even if your local `.env` has demo settings. It validates that real authentication settings are present. It binds the published port to localhost by default; set `BIND_ADDRESS` and `PUBLISHED_PORT` as appropriate for your reverse proxy or network. Set `APP_URL` to the externally reachable URL. Set `TRUST_PROXY=1` only behind a trusted single reverse proxy.
+
+If the GHCR package is private, sign in on the deployment machine with a GitHub token that has package-read access before pulling. Keep tokens out of Compose files. [GitHub's Container registry documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) covers package access and registry authentication.
+
+Development happens on feature branches followed by merges into `main` (pull requests preferred when tooling permits); see [AGENTS.md](AGENTS.md).

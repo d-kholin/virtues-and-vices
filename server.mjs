@@ -41,6 +41,7 @@ function upsertUser(id,name){db.prepare('INSERT INTO users VALUES(?,?,?) ON CONF
 let oidcConfig;
 async function config(){if(!process.env.OIDC_ISSUER||!process.env.OIDC_CLIENT_ID)throw Error('Pocket ID is not configured.');return oidcConfig||=(await oidc.discovery(new URL(process.env.OIDC_ISSUER),process.env.OIDC_CLIENT_ID,process.env.OIDC_CLIENT_SECRET))}
 const regenerate=req=>new Promise((yes,no)=>req.session.regenerate(e=>e?no(e):yes()));
+app.get('/healthz',(req,res)=>{db.prepare('SELECT 1').get();res.json({ok:true})});
 app.get('/auth/login',async(req,res)=>{
  if(demo){await regenerate(req);upsertUser('demo-you','You');upsertUser('demo-spouse','Your wife');req.session.userId='demo-you';return req.session.save(()=>res.redirect('/'))}
  const c=await config();const verifier=oidc.randomPKCECodeVerifier(),state=oidc.randomState(),nonce=oidc.randomNonce();
