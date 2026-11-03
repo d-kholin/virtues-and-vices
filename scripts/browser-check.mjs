@@ -9,7 +9,7 @@ const server=spawn(process.execPath,['server.mjs'],{env:{...process.env,DEMO_MOD
 let browser;
 try{
  await new Promise((yes,no)=>{const timer=setTimeout(()=>no(Error('Server startup timed out')),10000);server.stdout.on('data',d=>{if(String(d).includes('Virtues & Vices:')){clearTimeout(timer);yes()}});server.on('exit',c=>{clearTimeout(timer);no(Error('Server exited: '+c))});server.stderr.on('data',d=>process.stderr.write(d))});
- browser=await chromium.launch({channel:'msedge',headless:true});
+ browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});
  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(base);await page.getByRole('link',{name:'Enter local demo'}).click();await expect(page.getByRole('heading',{name:'A little better, daily.'})).toBeVisible();
  async function create(name,kind='virtue',options={}){await page.getByRole('button',{name:'New habit'}).click();const f=page.locator('#habit-form');await f.locator('[name=name]').fill(name);await f.locator('[name=kind]').selectOption(kind);for(const [k,v] of Object.entries(options))await f.locator(`[name=${k}]`).setChecked(v);await f.getByRole('button',{name:'Create habit'}).click();await expect(page.locator('#modal')).not.toBeVisible();if(!options.shared)await expect(page.getByRole('heading',{name:new RegExp('^'+name)})).toBeVisible()}

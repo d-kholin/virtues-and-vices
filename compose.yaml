@@ -1,0 +1,28 @@
+services:
+  app:
+    image: ${VV_IMAGE:-ghcr.io/d-kholin/virtues-and-vices:1}
+    restart: unless-stopped
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${PUBLISHED_PORT:-5173}:5173"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 5173
+      DEMO_MODE: "false"
+      APP_URL: ${APP_URL:?Set APP_URL to the external app URL}
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET to a random secret of at least 32 characters}
+      OIDC_ISSUER: ${OIDC_ISSUER:?Set your Pocket ID issuer URL}
+      OIDC_CLIENT_ID: ${OIDC_CLIENT_ID:?Set the Pocket ID client ID}
+      OIDC_CLIENT_SECRET: ${OIDC_CLIENT_SECRET:?Set the Pocket ID client secret}
+      ALLOWED_SUBJECTS: ${ALLOWED_SUBJECTS:?Set the approved Pocket ID subject IDs}
+      TRUST_PROXY: ${TRUST_PROXY:-0}
+      ADDITIONAL_ORIGINS: ${ADDITIONAL_ORIGINS:-}
+    volumes:
+      - habit-data:/app/data
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  habit-data:
