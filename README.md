@@ -95,4 +95,4 @@ Compose deliberately sets production mode and disables demo authentication bypas
 
 If the GHCR package is private, sign in on the deployment machine with a GitHub token that has package-read access before pulling. Keep tokens out of Compose files. [GitHub's Container registry documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) covers package access and registry authentication.
 
-Development happens on feature branches followed by pull requests into `main`; see [AGENTS.md](AGENTS.md).
+Development happens on feature branches followed by merges into `main` (pull requests preferred when tooling permits); see [AGENTS.md](AGENTS.md).
