@@ -37,7 +37,8 @@ Sign-in uses OIDC authorization code flow with PKCE, state, nonce, issuer discov
 - Date navigation and historical corrections; unresolved historical entries are prompted for review and keep streaks pending. Marking a day missed settles a break; correcting it recalculates the streak.
 - Daily and weekly current/best streaks, calendar heatmap, monthly completion rates, and filtered household activity.
 - Scheduled personal vacations with proportional, manual, or excused weekly targets. Shared habits pause only on overlapping vacation days for all approved family members.
-- Profile timezone/week start; per-habit week start; evening and extra habit reminder preferences.
+- Profile timezone selector grouped by region (including device timezone), week start, per-habit week start, evening and extra habit reminder preferences.
+- Settings → Force refresh app downloads current files, resets only this app’s service worker/cache, and reloads. Sign-in, preferences, habits, and history are retained; if offline, it keeps the existing cache and displays an error.
 - PWA manifest and public-asset service worker. This first version needs a network connection for sign-in and tracking; it does not queue offline writes. Installation support depends on browser support for SVG manifest icons.
 
 ## Not connected yet
